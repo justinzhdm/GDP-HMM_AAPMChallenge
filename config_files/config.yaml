@@ -1,0 +1,54 @@
+
+
+loader_params: 
+
+    'train_bs': 1
+    'val_bs': 4
+    'csv_root': 'meta_files/meta_data.csv'
+#    'csv_root': 'meta_files/meta_data_small.csv'
+    'scale_dose_dict': 'meta_files/PTV_DICT.json'
+    'pat_obj_dict': 'meta_files/Pat_Obj_DICT.json'
+    'num_workers': 4
+
+    'down_HU': -1000
+    'up_HU': 1000
+    'denom_norm_HU': 500
+
+#    'in_size': [96, 128, 144]
+#    'out_size': [96, 128, 144]
+#    'in_size': [128, 96, 144]
+#    'out_size': [128, 96, 144]
+    'in_size': [176, 160, 272]
+    'out_size': [176, 160, 272]
+
+    'norm_oar': True
+    'CatStructures': False
+
+    'dose_div_factor': 10 
+    
+    
+model_params:
+    num_input_channels: 8
+    out_channels: 1
+#    model_id: 'B'
+#    model_id: 'M'
+    model_id: 'L'
+    kernel_size: 3
+    deep_supervision: False
+    
+lr: 0.00001
+
+num_epochs: 400
+
+act_sig: True
+
+#scale_out: 7.5
+scale_out: 12.0
+
+#scale_loss: 4
+
+
+pretrain_ckpt: /home/zhudeming/GDP-HMM_AAPMChallenge/pretrainmodel_test/best_model-epoch=61-train_loss=1.4440994654819643.pth
+#pretrain_ckpt: /data/result/GDP-HMM_Challenge/GDP-HMM_baseline/MedNeXtV1_InCh_8_OutCh_1_ModelID_B_KerSize_3_DeepSup_False_Lightning/best-train_loss=0.1841.ckpt
+
+save_model_root: /home/zhudeming/GDP-HMM_AAPMChallenge/pretrainmodel_test

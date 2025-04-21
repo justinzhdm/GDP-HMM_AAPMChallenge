@@ -1,0 +1,3 @@
+PID,PlanID,isVMAT,site,cohort,phase,npz_path,dev_split
+HNC_001,A4Ac,TRUE,1,3,train,data/HNC_001+A4Ac+MOS_25934.npz,train
+HNC_001,9Ag,FALSE,1,3,train,data/HNC_001+9Ag+MOS_25934.npz,valid
