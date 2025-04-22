@@ -1,5 +1,5 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 import torch
 # from nnunet_mednext import create_mednext_v1
 # from mednext.nnunet_mednext.network_architecture.mednextv1.create_mednext_v1 import create_mednext_v1
@@ -156,84 +156,45 @@ if __name__ == "__main__":
     loaders = data_loader.GetLoader(cfig = cfig['loader_params'])
     test_loader = loaders.test_dataloader()
 
-    temp_cfig = copy.deepcopy(cfig)
-    # temp_cfig['loader_params']['csv_root'] = 'meta_files/meta_data.csv'
-    temp_cfig['loader_params']['csv_root'] = 'meta_files/meta_data_infer_dummy.csv'
-    # temp_cfig['loader_params']['csv_root'] = 'meta_files/meta_data_infer_temp.csv'
-    loaders = data_loader.GetLoader(cfig=temp_cfig['loader_params'])
-    train_loader = loaders.train_dataloader_test()
-    val_loader = loaders.val_dataloader()
+    # temp_cfig = copy.deepcopy(cfig)
+    # # temp_cfig['loader_params']['csv_root'] = 'meta_files/meta_data.csv'
+    # temp_cfig['loader_params']['csv_root'] = 'meta_files/meta_data_infer_dummy.csv'
+    # # temp_cfig['loader_params']['csv_root'] = 'meta_files/meta_data_infer_temp.csv'
+    # loaders = data_loader.GetLoader(cfig=temp_cfig['loader_params'])
+    # train_loader = loaders.train_dataloader_test()
+    # val_loader = loaders.val_dataloader()
 
-    if cfig['model_from_lightning']:  # when the model is trained with training_lightning.py
-        from train_lightning import GDPLightningModel
-        pl_module = GDPLightningModel.load_from_checkpoint(cfig['save_model_path'], cfig = cfig, strict = True)
-        model = pl_module.model.to(device)
-    else:      # when the model is trained with train.py
-        model = create_mednext_v1( num_input_channels = cfig['model_params']['num_input_channels'],
-        num_classes = cfig['model_params']['out_channels'],
-        model_id = cfig['model_params']['model_id'],          # S, B, M and L are valid model ids
-        kernel_size = cfig['model_params']['kernel_size'],   
-        deep_supervision = cfig['model_params']['deep_supervision']   
-        ).to(device)
-        # load pretrained model 
-        model.load_state_dict(torch.load(cfig['save_model_path'], map_location = device))
-        print('load model ', cfig['save_model_path'])
+    # if cfig['model_from_lightning']:  # when the model is trained with training_lightning.py
+    #     from train_lightning import GDPLightningModel
+    #     pl_module = GDPLightningModel.load_from_checkpoint(cfig['save_model_path'], cfig = cfig, strict = True)
+    #     model = pl_module.model.to(device)
+    # else:      # when the model is trained with train.py
+    model = create_mednext_v1(num_input_channels=cfig['model_params']['num_input_channels'],
+                              num_classes=cfig['model_params']['out_channels'],
+                              model_id=cfig['model_params']['model_id'],  # S, B, M and L are valid model ids
+                              kernel_size=cfig['model_params']['kernel_size'],
+                              deep_supervision=cfig['model_params']['deep_supervision']
+                              ).to(device)
+    # load pretrained model
+    model.load_state_dict(torch.load(cfig['save_model_path'], map_location=device))
+    print('load model ', cfig['save_model_path'])
 
-    print('che', cfig['save_model_path'])
 
     # a=time.time()
     avg_loss = 0
     with torch.no_grad():
         model.eval()
-        # for batch_idx, data_dict in enumerate(test_loader):
+        for batch_idx, data_dict in enumerate(test_loader):
         # for batch_idx, data_dict in enumerate(train_loader):
-        for batch_idx, data_dict in enumerate(val_loader):
+        # for batch_idx, data_dict in enumerate(val_loader):
             a = time.time()
-            # Forward pass
-
-            # if 'HN-HMR-009+S29Ag+MOS_41448' not in data_dict['data_path'][0]:
-            # # if batch_idx <120:
-            # #     print(data_dict['data_path'][0])
-            #     continue
-
-
             outputs = model(data_dict['data'].to(device))
-            # outputs = model(data_dict['prescribed_dose'].float().to(device), data_dict['data'].float().to(device))
             print('Time taken for average forward pass: ', time.time() - a, data_dict['data_path'][0])
 
             # if cfig['act_sig']:
             # outputs = torch.sigmoid(outputs)
             # outputs = outputs * cfig['scale_out']
             # outputs = outputs * 0.2 * torch.reshape(data_dict['prescribed_dose'][:, 0], (-1, 1, 1, 1, 1)).to(device)
-
-            # # if 'HNSCC-01-0012+A4Ac+MOS_13679' in data_dict['data_path'][0]:
-            # if 1:
-            #     print(data_dict['data_path'][0])
-            #     imgSITK = sitk.GetImageFromArray(outputs.cpu().numpy()[0, 0, :, :, :])
-            #     sitk.WriteImage(imgSITK, "./output.mhd")
-            #     imgSITK = sitk.GetImageFromArray(data_dict['data'].cpu().numpy()[0, 0, :, :, :])
-            #     sitk.WriteImage(imgSITK, "./input.mhd")
-            #     raise
-
-            # if 'label' in data_dict.keys():
-            #     # print ('L1 error is ', torch.nn.L1Loss()(outputs, data_dict['label'].to(device)).item())
-            #     # loss = torch.nn.L1Loss()(outputs, data_dict['label'].to(device)).item() * cfig['scale_loss']
-            #     ref_dose = data_dict['label'].cpu().numpy() * cfig['loader_params']['dose_div_factor']
-            #     # data_dict['Body'] = data_dict['Body'].cpu().numpy()
-            #     data_dict['Body'] = torch.where(data_dict['Body'] > 0.3, torch.ones_like(data_dict['Body']), torch.zeros_like(data_dict['Body'])).cpu().numpy()
-            #     temp_outputs = outputs.cpu().numpy() * cfig['loader_params']['dose_div_factor']
-            #     th = 5
-            #     isodose_5Gy_mask = ((ref_dose > th) | (temp_outputs > th)) & (data_dict['Body'] > 0)
-            #     isodose_ref_5Gy_mask = (ref_dose > th) & (data_dict['Body'] > 0)
-            #     diff = ref_dose - temp_outputs
-            #     # loss= np.sum(np.abs(diff)[isodose_5Gy_mask > 0]) / np.sum(isodose_ref_5Gy_mask)
-            #     diff = np.abs(diff)
-            #     diff = np.sum(diff * isodose_5Gy_mask.astype(np.float32), axis=(1, 2, 3, 4))
-            #     isodose_ref_5Gy_mask = np.sum(isodose_ref_5Gy_mask, axis=(1, 2, 3, 4))
-            #     loss = np.mean(diff / isodose_ref_5Gy_mask.astype(np.float32))
-            #     print(loss)
-            #     avg_loss += loss
-
 
 
             if cfig['loader_params']['in_size'] != cfig['loader_params']['out_size']:
@@ -256,56 +217,19 @@ if __name__ == "__main__":
                 # print(ref_dose.shape)
                 pred2orisize = recover_pad(outputs[index:index + 1, :, :, :, :], data_dict['padding'][index].numpy().tolist(), ori_size).cpu().numpy() * cfig['loader_params']['dose_div_factor']
 
-                # print(pred2orisize.shape, ori_size)
-                # np.save(os.path.join(cfig['save_pred_path'], data_dict['id'][index] + '_pred.npy'), pred2orisize)
 
-                ref_dose = data_dict['origin_label'].cpu().numpy() * cfig['loader_params']['dose_div_factor']
-                data_dict['Body'] = data_dict['origin_body'].cpu().numpy()
-                temp_outputs = pred2orisize
-                # print(np.max(pred2orisize), np.max(ref_dose))
-                th = 5
-                isodose_5Gy_mask = ((ref_dose > th) | (temp_outputs > th)) & (data_dict['Body'] > 0)
-                isodose_ref_5Gy_mask = (ref_dose > th) & (data_dict['Body'] > 0)
-                diff = ref_dose - temp_outputs
-                loss= np.sum(np.abs(diff)[isodose_5Gy_mask > 0]) / np.sum(isodose_ref_5Gy_mask)
-                print(loss, data_dict['data_path'][0])
-                avg_loss += loss
+                np.save(os.path.join(cfig['save_pred_path'], data_dict['id'][index] + '_pred.npy'), pred2orisize)
 
-
-                # # # if loss > 4:
-                # # if '0522c0001+9Ag+MOS_23629' in data_dict['data_path'][0]:
-                # imgSITK = sitk.GetImageFromArray(temp_outputs[0, 0, :, :, :])
-                # sitk.WriteImage(imgSITK, "./outputs.mhd")
-                # imgSITK = sitk.GetImageFromArray(ref_dose[0, 0, :, :, :])
-                # sitk.WriteImage(imgSITK, "./label.mhd")
-                # raise
-
-                # #
-                # #     ref_dose = data_dict['origin_label'].cpu().numpy() * cfig['loader_params']['dose_div_factor']
-                # #     imgSITK = sitk.GetImageFromArray(ref_dose[0, 0, :, :, :])
-                # #     sitk.WriteImage(imgSITK, "./label.mhd")
-                # #     data = F.interpolate(data_dict['origin_label'].float() * cfig['loader_params']['dose_div_factor'], size=(128, 96, 144), mode="trilinear", align_corners=False)
-                # #     ref_dose = F.interpolate(data, size=(124, 103, 169), mode="trilinear", align_corners=False)
-                # #     ref_dose = ref_dose.cpu().numpy()
-                # #     imgSITK = sitk.GetImageFromArray(ref_dose[0, 0, :, :, :])
-                # #     sitk.WriteImage(imgSITK, "./label2.mhd")
-                #     body = data_dict['origin_body'].cpu().numpy()
-                #     imgSITK = sitk.GetImageFromArray(body[0, 0, :, :, :])
-                #     sitk.WriteImage(imgSITK, "./body.mhd")
-                #     body = F.interpolate(data_dict['origin_body'].float() * cfig['loader_params']['dose_div_factor'], size=(128, 96, 144), mode="trilinear", align_corners=False)
-                #     body = torch.where(body>0.8, torch.ones_like(body), torch.zeros_like(body)).bool()
-                #     body = F.interpolate(body.float(), size=(124, 103, 169), mode="trilinear", align_corners=False)
-                #     body = torch.where(body > 0.8, torch.ones_like(body), torch.zeros_like(body))
-                #     body = body.cpu().numpy()
-                #     imgSITK = sitk.GetImageFromArray(body[0, 0, :, :, :])
-                #     sitk.WriteImage(imgSITK, "./body2.mhd")
-                #     raise
+                # ref_dose = data_dict['origin_label'].cpu().numpy() * cfig['loader_params']['dose_div_factor']
+                # data_dict['Body'] = data_dict['origin_body'].cpu().numpy()
+                # temp_outputs = pred2orisize
+                # # print(np.max(pred2orisize), np.max(ref_dose))
+                # th = 5
+                # isodose_5Gy_mask = ((ref_dose > th) | (temp_outputs > th)) & (data_dict['Body'] > 0)
+                # isodose_ref_5Gy_mask = (ref_dose > th) & (data_dict['Body'] > 0)
+                # diff = ref_dose - temp_outputs
+                # loss= np.sum(np.abs(diff)[isodose_5Gy_mask > 0]) / np.sum(isodose_ref_5Gy_mask)
+                # print(loss, data_dict['data_path'][0])
+                # avg_loss += loss
 
 
-            # print(pred2orisize.shape)
-            # print('time', time.time() - a)
-
-        # avg_loss = avg_loss / len(train_loader)
-        # print(len(train_loader), avg_loss)
-        # avg_loss = avg_loss / len(val_loader)
-        # print(len(val_loader), avg_loss)

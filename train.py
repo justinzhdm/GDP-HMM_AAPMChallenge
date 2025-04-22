@@ -3,10 +3,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import torch
 import torch.nn as nn
 import torch.optim as optim
-# from nnunet_mednext import create_mednext_v1
 from mednext.nnunet_mednext.network_architecture.mednextv1.create_mednext_v1 import create_mednext_v1
-# from mednext.nnunet_mednext.network_architecture.mednextv1.create_mednext_v1_new import create_mednext_v1
-
 import data_loader
 import yaml
 import argparse 
@@ -46,7 +43,7 @@ model = create_mednext_v1( num_input_channels = cfig['model_params']['num_input_
   deep_supervision = cfig['model_params']['deep_supervision']
 ).to(device)
 
-model.load_state_dict(torch.load(cfig['pretrain_ckpt'], map_location=device), strict=False)
+# model.load_state_dict(torch.load(cfig['pretrain_ckpt'], map_location=device), strict=False)
 # from train_lightning import GDPLightningModel
 # pl_module = GDPLightningModel.load_from_checkpoint('/data/result/GDP-HMM_Challenge/GDP-HMM_baseline/MedNeXtV1_InCh_8_OutCh_1_ModelID_B_KerSize_3_DeepSup_False_Lightning/best-train_loss=0.1841.ckpt', cfig=cfig, strict=True)
 # model = pl_module.model.to(device)

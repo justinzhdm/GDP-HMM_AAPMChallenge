@@ -14,5 +14,5 @@ We used the model ensemble method in inference phase. So the model file is forme
 
 ## How to run
 
-- train: python3 train.py
-- test:  python3 inference.py
+- train: python3 train.py config.yaml
+- test:  python3 inference.py config_infer.yaml

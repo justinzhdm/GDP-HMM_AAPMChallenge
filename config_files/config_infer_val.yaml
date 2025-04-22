@@ -41,9 +41,9 @@ scale_out: 12.0
 scale_loss: 4
 
 model_from_lightning: False
-#save_model_path: pretrainmodel_test/best_model-epoch=295-train_loss=1.6333791334741616.pth
+save_model_path: checkpoint/train.pth
 #save_model_path: /home/zhudeming/GDP-HMM_AAPMChallenge/pretrainmodel_test/best_model-epoch=69-train_loss=0.9495604410822138.pth
-save_model_path: /home/zhudeming/GDP-HMM_AAPMChallenge/pretrainmodel_test/test.pth
+#save_model_path: /home/zhudeming/GDP-HMM_AAPMChallenge/pretrainmodel_test/test.pth
 save_pred_path: results
 
 #model_from_lightning: True
