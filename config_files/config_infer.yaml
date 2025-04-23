@@ -7,6 +7,9 @@ loader_params:
     'csv_root': 'meta_files/meta_data_infer_val.csv'
     'scale_dose_dict': 'meta_files/PTV_DICT.json'
     'pat_obj_dict': 'meta_files/Pat_Obj_DICT.json'
+#    'csv_root': '/data/meta_data_test.csv'
+#    'scale_dose_dict': '/data/PTV_DICT.json'
+#    'pat_obj_dict': '/data/Pat_Obj_DICT.json'
     'num_workers': 2
 
     'down_HU': -1000
@@ -35,6 +38,6 @@ scale_loss: 4
 
 model_from_lightning: False
 save_model_path: checkpoint/train.pth
-save_pred_path: /results
+save_pred_path: results
 
 

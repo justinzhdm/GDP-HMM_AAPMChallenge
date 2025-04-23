@@ -180,6 +180,8 @@ if __name__ == "__main__":
     print('load model ', cfig['save_model_path'])
 
 
+    os.makedirs(cfig['save_pred_path'], exist_ok=True)
+
     # a=time.time()
     avg_loss = 0
     with torch.no_grad():
