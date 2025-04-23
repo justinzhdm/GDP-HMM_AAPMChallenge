@@ -2022,13 +2022,6 @@
             "StructName": "PTVMid"
         }
     },
-    "HN-CHUS-100": {
-        "PTV_High": {
-            "OPTName": "PTVHighOPT",
-            "PDose": 10.0,
-            "RingName": "RingPTVHigh"
-        }
-    },
     "HN-CHUS-101": {
         "PTV_High": {
             "OPTName": "PTVHighOPT",
